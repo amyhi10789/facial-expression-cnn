@@ -541,8 +541,6 @@ body {
     display: none;
 }
 
-/* ================= WELCOME POPUP ================= */
-
 .welcome-popup {
     position: fixed;
     top: 100px;
@@ -564,4 +562,25 @@ body {
 .welcome-popup.show {
     opacity: 1;
     transform: translateY(0);
+}
+
+.insight-section {
+    margin-top: 30px;
+    text-align: left;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    backdrop-filter: blur(6px);
+}
+
+.insight-section h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+    opacity: 0.9;
+}
+
+.insight-text {
+    font-size: 14px;
+    line-height: 1.6;
+    opacity: 0.85;
 }

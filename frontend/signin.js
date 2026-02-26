@@ -1,139 +1,50 @@
+import { auth } from "./firebase.js";
+
+import {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    GoogleAuthProvider,
+    signInWithPopup,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
 const form = document.getElementById("authForm");
 const message = document.getElementById("authMessage");
+const googleBtn = document.getElementById("googleBtn");
 
-const switchBtn = document.getElementById("switchMode");
-const switchText = document.getElementById("switchText");
-const authTitle = document.getElementById("authTitle");
-const authSubtitle = document.getElementById("authSubtitle");
-const authButton = document.getElementById("authButton");
-
-const authSection = document.getElementById("authSection");
-const accountSection = document.getElementById("accountSection");
-
-const accountEmail = document.getElementById("accountEmail");
-const accountCreated = document.getElementById("accountCreated");
-const logoutBtn = document.getElementById("logoutBtn");
-
-let isCreateMode = false;
-
-/* ===== UTILITIES ===== */
-function getUsers() {
-    return JSON.parse(localStorage.getItem("users")) || {};
-}
-
-function saveUsers(users) {
-    localStorage.setItem("users", JSON.stringify(users));
-}
-
-function setCurrentUser(email) {
-    localStorage.setItem("currentUser", email);
-}
-
-function getCurrentUser() {
-    return localStorage.getItem("currentUser");
-}
-
-function logout() {
-    localStorage.removeItem("currentUser");
-    location.reload();
-}
-
-/* ===== MODE SWITCH ===== */
-switchBtn.addEventListener("click", () => {
-    isCreateMode = !isCreateMode;
-
-    if (isCreateMode) {
-        authTitle.innerText = "Create Account";
-        authSubtitle.innerText = "Set up your Percepta AI account.";
-        authButton.innerText = "Create Account";
-        switchText.innerText = "Already have an account?";
-        switchBtn.innerText = "Sign in";
-        message.innerText = "";
-    } else {
-        authTitle.innerText = "Sign In";
-        authSubtitle.innerText = "Sign in to access your emotional insights.";
-        authButton.innerText = "Sign In";
-        switchText.innerText = "Don't have an account?";
-        switchBtn.innerText = "Create one";
-        message.innerText = "";
-    }
-});
-
-/* ===== FORM SUBMIT ===== */
-form.addEventListener("submit", (e) => {
+form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-    const users = getUsers();
-
-    if (isCreateMode) {
-
-        if (users[email]) {
-            message.innerText = "Account already exists. Please sign in.";
+    try {
+        await signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            message.innerText = error.message;
             return;
         }
+    }
 
-        users[email] = {
-            password,
-            createdAt: new Date().toLocaleString()
-        };
+    window.location.href = "app.html";
+});
 
-        saveUsers(users);
-        setCurrentUser(email);
+googleBtn.addEventListener("click", async () => {
+    const provider = new GoogleAuthProvider();
 
-        // Set welcome message
-        localStorage.setItem(
-            "welcomeMessage",
-            "Thank you for creating an account. Welcome to Percepta AI!"
-        );
-
+    try {
+        await signInWithPopup(auth, provider);
         window.location.href = "app.html";
-
-    } else {
-
-        if (!users[email]) {
-            message.innerText = "No account found. Please create one.";
-            return;
-        }
-
-        if (users[email].password !== password) {
-            message.innerText = "Incorrect password.";
-            return;
-        }
-
-        setCurrentUser(email);
-
-        localStorage.setItem(
-            "welcomeMessage",
-            "Thank you for signing in. Welcome back to Percepta AI!"
-        );
-
-        window.location.href = "app.html";
+    } catch (error) {
+        message.innerText = error.message;
     }
 });
 
-/* ===== ACCOUNT DISPLAY ===== */
-function showAccount() {
-    const email = getCurrentUser();
-    const users = getUsers();
-
-    if (!email || !users[email]) return;
-
-    authSection.classList.add("hidden");
-    accountSection.classList.remove("hidden");
-
-    accountEmail.innerText = email;
-    accountCreated.innerText = users[email].createdAt;
-}
-
-logoutBtn.addEventListener("click", logout);
-
-document.addEventListener("DOMContentLoaded", () => {
-    const currentUser = getCurrentUser();
-
-    if (currentUser) {
-        showAccount();
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        console.log("Logged in as:", user.uid);
     }
 });

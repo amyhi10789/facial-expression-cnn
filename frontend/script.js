@@ -1,48 +1,18 @@
-const currentUser = localStorage.getItem("currentUser");
+import { auth, db } from "./firebase.js";
 
-document.addEventListener("DOMContentLoaded", () => {
+import { onAuthStateChanged } from
+    "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    const protectedPages = ["app.html", "history.html"];
-    const currentPage = window.location.pathname.split("/").pop();
-
-    if (protectedPages.includes(currentPage)) {
-
-        const currentUser = localStorage.getItem("currentUser");
-
-        if (!currentUser) {
-            window.location.href = "signin.html";
-            return;
-        }
-
-        const welcomeMessage = localStorage.getItem("welcomeMessage");
-
-        if (welcomeMessage) {
-            showWelcomePopup(welcomeMessage);
-            localStorage.removeItem("welcomeMessage");
-        }
-    }
-
-});
-
-function showWelcomePopup(message) {
-
-    const popup = document.createElement("div");
-    popup.className = "welcome-popup";
-    popup.innerText = message;
-
-    document.body.appendChild(popup);
-
-    void popup.offsetWidth;
-
-    popup.classList.add("show");
-
-    setTimeout(() => {
-        popup.classList.remove("show");
-        setTimeout(() => popup.remove(), 300);
-    }, 3000);
-}
+import { collection, addDoc } from
+    "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentFile = null;
+
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        window.location.href = "signin.html";
+    }
+});
 
 const input = document.getElementById("imageInput");
 const uploadArea = document.getElementById("uploadArea");
@@ -57,12 +27,15 @@ const confidenceLabel = document.getElementById("confidenceLabel");
 const confidenceBar = document.getElementById("confidenceBar");
 const loadingText = document.getElementById("loadingText");
 
+const modelExplanation = document.getElementById("modelExplanation");
+const confidenceExplanation = document.getElementById("confidenceExplanation");
+
 function showView(view) {
     [uploadView, loadingView, resultView].forEach(v => {
-        v.classList.remove("active-view");
+        v?.classList.remove("active-view");
     });
 
-    view.classList.add("active-view");
+    view?.classList.add("active-view");
 
     if (view === loadingView) {
         document.body.classList.add("loading-active");
@@ -71,36 +44,37 @@ function showView(view) {
     }
 }
 
-input.addEventListener("change", () => {
+input?.addEventListener("change", () => {
     currentFile = input.files[0];
     if (currentFile) {
-        uploadStatus.classList.remove("hidden");
+        uploadStatus?.classList.remove("hidden");
     }
 });
 
-uploadArea.addEventListener("dragover", e => {
+uploadArea?.addEventListener("dragover", (e) => {
     e.preventDefault();
     uploadArea.style.borderColor = "white";
 });
 
-uploadArea.addEventListener("dragleave", () => {
+uploadArea?.addEventListener("dragleave", () => {
     uploadArea.style.borderColor = "rgba(255,255,255,0.5)";
 });
 
-uploadArea.addEventListener("drop", e => {
+uploadArea?.addEventListener("drop", (e) => {
     e.preventDefault();
     uploadArea.style.borderColor = "rgba(255,255,255,0.5)";
     currentFile = e.dataTransfer.files[0];
+
     if (currentFile) {
-        uploadStatus.classList.remove("hidden");
+        uploadStatus?.classList.remove("hidden");
     }
 });
 
-document.addEventListener("paste", e => {
+document.addEventListener("paste", (e) => {
     for (let item of e.clipboardData.items) {
         if (item.type.includes("image")) {
             currentFile = item.getAsFile();
-            uploadStatus.classList.remove("hidden");
+            uploadStatus?.classList.remove("hidden");
         }
     }
 });
@@ -122,11 +96,14 @@ async function startAnalysis() {
     ];
 
     for (let step of steps) {
-        loadingText.innerText = step;
+        if (loadingText) {
+            loadingText.innerText = step;
+        }
         await new Promise(r => setTimeout(r, 900));
     }
 
     try {
+
         const formData = new FormData();
         formData.append("file", currentFile);
 
@@ -149,35 +126,38 @@ async function startAnalysis() {
 
         confidenceBar.style.width = `${data.confidence * 100}%`;
 
-        const allHistory =
-            JSON.parse(localStorage.getItem("emotionHistory")) || {};
-
-        if (!allHistory[currentUser]) {
-            allHistory[currentUser] = [];
+        if (data.explanation) {
+            modelExplanation.innerText = data.explanation;
+        } else {
+            modelExplanation.innerText =
+                "The model analyzed facial structure and expression patterns to determine the most probable emotional classification.";
         }
 
-        allHistory[currentUser].unshift({
-            date: new Date().toLocaleString([], {
-                year: "numeric",
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }),
-            emotion: data.emotion,
-            confidence: data.confidence
-        });
-
-        if (allHistory[currentUser].length > 50) {
-            allHistory[currentUser].pop();
+        if (data.confidence > 0.75) {
+            confidenceExplanation.innerText =
+                "The model shows strong certainty in this classification. Detected facial features consistently aligned with learned training patterns.";
+        }
+        else if (data.confidence > 0.45) {
+            confidenceExplanation.innerText =
+                "The model shows moderate confidence. Some facial signals align clearly, while others overlap with alternative emotional categories.";
+        }
+        else {
+            confidenceExplanation.innerText =
+                "The model confidence is relatively low. Facial signals appear ambiguous or mixed, meaning multiple interpretations were possible.";
         }
 
-        localStorage.setItem(
-            "emotionHistory",
-            JSON.stringify(allHistory)
+        await addDoc(
+            collection(db, "users", auth.currentUser.uid, "history"),
+            {
+                emotion: data.emotion,
+                confidence: data.confidence,
+                explanation: data.explanation || "",
+                timestamp: new Date()
+            }
         );
 
     } catch (error) {
+        console.error(error);
         alert("Analysis failed. Make sure your backend server is running.");
         showView(uploadView);
     }
@@ -188,6 +168,11 @@ function resetApp() {
     confidenceBar.style.width = "0%";
     emotionBadge.innerText = "";
     confidenceLabel.innerText = "";
+    modelExplanation.innerText = "";
+    confidenceExplanation.innerText = "";
     currentFile = null;
-    uploadStatus.classList.add("hidden");
+    uploadStatus?.classList.add("hidden");
 }
+
+window.startAnalysis = startAnalysis;
+window.resetApp = resetApp;

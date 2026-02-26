@@ -63,7 +63,7 @@
 
             <section id="resultView" class="view">
 
-                <h1 class="app-title">Analysis Result</h1>
+                <h1 class="app-title">Analysis Result:</h1>
 
                 <div class="emotion-badge" id="emotionBadge"></div>
                 <div class="confidence-label" id="confidenceLabel"></div>
@@ -72,7 +72,19 @@
                     <div class="confidence-bar" id="confidenceBar"></div>
                 </div>
 
-                <button class="primary-btn" onclick="resetApp()">
+                <div class="insight-section" id="insightSection">
+
+                    <h3>Result Determination</h3>
+
+                    <div id="modelExplanation" class="insight-text"></div>
+
+                    <h3 style="margin-top:20px;">Confidence Interpretation</h3>
+
+                    <div id="confidenceExplanation" class="insight-text"></div>
+
+                </div>
+
+                <button class="primary-btn" onclick="resetApp()" style="margin-top: 30px">
                     Analyze Another Image
                 </button>
 
@@ -103,7 +115,7 @@
         </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 
 </html>
