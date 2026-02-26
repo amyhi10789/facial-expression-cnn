@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Percepta AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="blob blob1"></div>
+    <div class="blob blob2"></div>
+
+    <div class="navbar">
+        <div class="nav-logo">Percepta AI</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="app.html">Percepta AI App</a>
+            <a href="history.html">Analysis History</a>
+            <a href="signin.html" class="active">Sign-in</a>
+        </div>
+    </div>
+
+    <main class="app-wrapper">
+
+        <div class="app-card auth-card">
+
+            <div id="authSection">
+
+                <h1 class="app-title" id="authTitle">Sign In</h1>
+                <p class="app-subtitle" id="authSubtitle">
+                    Sign in to access your emotional insights.
+                </p>
+
+                <form id="authForm" class="auth-form">
+
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required>
+                    </div>
+
+                    <button type="submit" class="primary-btn" id="authButton">
+                        Sign In
+                    </button>
+
+                </form>
+
+                <div class="auth-message" id="authMessage"></div>
+
+                <div class="auth-switch">
+                    <span id="switchText">Don't have an account?</span>
+                    <button id="switchMode">Create one</button>
+                </div>
+
+            </div>
+
+            <div id="accountSection" class="hidden">
+
+                <h1 class="app-title">Account Overview</h1>
+                <p>You are signed in to Percepta AI.</p>
+                <div class="account-info">
+                    <div><strong>Email:</strong> <span id="accountEmail"></span></div>
+                    <div><strong>Account Created:</strong> <span id="accountCreated"></span></div>
+                </div>
+                <h1></h1>
+
+                <button class="primary-btn" id="logoutBtn" style="padding-top: 15px;" style="margin-top: 15px">
+                    Sign Out
+                </button>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">Percepta AI</div>
+                <div class="footer-tagline">
+                    Building technology to transform emotion detection.
+                </div>
+            </div>
+
+            <div class="footer-right">
+                <div>© 2026 Percepta AI</div>
+                <div>Created by Percepta AI Team</div>
+                <div>
+                    <a href="mailto:contact.perceptai@gmail.com">
+                        contact.perceptai@gmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="signin.js"></script>
+</body>
+
+</html>

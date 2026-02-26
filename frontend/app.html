@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Percepta AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="app-page">
+
+    <div class="navbar">
+        <div class="nav-logo">Percepta AI</div>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="app.html" class="active">Percepta AI Software</a>
+            <a href="history.html">Analysis History</a>
+            <a href="signin.html">Sign-in</a>
+        </div>
+    </div>
+
+    <main class="app-wrapper">
+
+        <div class="app-card">
+
+            <section id="uploadView" class="view active-view">
+
+                <h1 class="app-title">Percepta AI </h1>
+
+                <p class="app-subtitle">
+                    Upload a facial image and receive powerful AI emotional analysis.
+                </p>
+
+                <div class="upload-zone" id="uploadArea">
+                    <p>Click, drag, or paste an image</p>
+                    <input type="file" id="imageInput" hidden>
+                    <button onclick="document.getElementById('imageInput').click()">
+                        Browse Files
+                    </button>
+                </div>
+
+                <div id="uploadStatus" class="upload-status hidden">
+                    <strong>IMAGE UPLOADED ☑️</strong>
+                </div>
+
+                <p></p>
+                <p></p>
+
+                <button id="analyzeBtn" class="primary-btn" onclick="startAnalysis()">
+                    Analyze
+                </button>
+
+            </section>
+
+            <section id="loadingView" class="view">
+
+                <div class="loader"></div>
+                <div id="loadingText" class="loading-text">
+                    Initializing model...
+                </div>
+
+            </section>
+
+            <section id="resultView" class="view">
+
+                <h1 class="app-title">Analysis Result</h1>
+
+                <div class="emotion-badge" id="emotionBadge"></div>
+                <div class="confidence-label" id="confidenceLabel"></div>
+
+                <div class="confidence-container">
+                    <div class="confidence-bar" id="confidenceBar"></div>
+                </div>
+
+                <button class="primary-btn" onclick="resetApp()">
+                    Analyze Another Image
+                </button>
+
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="footer-logo">Percepta AI</div>
+                <div class="footer-tagline">
+                    Building technology to transform emotion detection.
+                </div>
+            </div>
+
+            <div class="footer-right">
+                <div>© 2026 Percepta AI</div>
+                <div>Created by Percepta AI Team</div>
+                <div>
+                    <a href="mailto:contact.perceptai@gmail.com">
+                        contact.perceptai@gmail.com
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
