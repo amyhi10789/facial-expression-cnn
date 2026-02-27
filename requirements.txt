@@ -10,3 +10,5 @@ uvicorn
 python-multipart
 seaborn
 openai>=1.0.0
+python-dotenv
+pillow
