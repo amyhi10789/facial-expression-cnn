@@ -29,6 +29,8 @@ const loadingText = document.getElementById("loadingText");
 const modelExplanation = document.getElementById("modelExplanation");
 const confidenceExplanation = document.getElementById("confidenceExplanation");
 
+const API_BASE = "https://percepta-ai.onrender.com";
+
 function showView(view) {
     [uploadView, loadingView, resultView].forEach(v => {
         v?.classList.remove("active-view");
@@ -106,7 +108,7 @@ async function startAnalysis() {
         const formData = new FormData();
         formData.append("file", currentFile);
 
-        const response = await fetch("http://127.0.0.1:8000/predict", {
+        const response = await fetch(`${API_BASE}/predict`, {
             method: "POST",
             body: formData
         });

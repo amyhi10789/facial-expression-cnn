@@ -40,7 +40,6 @@ def train_model(model, train_loader, val_loader, epochs, lr, device):
         print(f"Val Accuracy: {metrics['accuracy']:.4f}")
         print(f"Val Macro F1: {metrics['macro_f1']:.4f}")
 
-        # Save best model
         if metrics["macro_f1"] > best_f1:
             best_f1 = metrics["macro_f1"]
             save_checkpoint(model, "outputs/checkpoints/best_model.pth")
