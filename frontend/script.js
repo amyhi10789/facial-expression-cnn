@@ -1,18 +1,16 @@
 import { auth, db } from "./firebase.js";
-
 import { collection, addDoc } from
     "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-let currentFile = null;
-
 import { onAuthStateChanged } from
     "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+let currentFile = null;
 let currentUser = null;
 
 onAuthStateChanged(auth, (user) => {
     currentUser = user;
 });
+
 const input = document.getElementById("imageInput");
 const uploadArea = document.getElementById("uploadArea");
 const uploadStatus = document.getElementById("uploadStatus");
@@ -28,8 +26,6 @@ const loadingText = document.getElementById("loadingText");
 
 const modelExplanation = document.getElementById("modelExplanation");
 const confidenceExplanation = document.getElementById("confidenceExplanation");
-
-const API_BASE = "https://percepta-ai.onrender.com";
 
 function showView(view) {
     [uploadView, loadingView, resultView].forEach(v => {
@@ -65,7 +61,6 @@ uploadArea?.addEventListener("drop", (e) => {
     e.preventDefault();
     uploadArea.style.borderColor = "rgba(255,255,255,0.5)";
     currentFile = e.dataTransfer.files[0];
-
     if (currentFile) {
         uploadStatus?.classList.remove("hidden");
     }
@@ -97,24 +92,23 @@ async function startAnalysis() {
     ];
 
     for (let step of steps) {
-        if (loadingText) {
-            loadingText.innerText = step;
-        }
+        if (loadingText) loadingText.innerText = step;
         await new Promise(r => setTimeout(r, 900));
     }
 
     try {
-
         const formData = new FormData();
         formData.append("file", currentFile);
 
-        const response = await fetch(`${API_BASE}/predict`, {
+        const response = await fetch("/predict", {
             method: "POST",
             body: formData
         });
 
         if (!response.ok) {
-            throw new Error("Server error");
+            const errText = await response.text();
+            console.error("Backend error:", errText);
+            throw new Error(`Server error (${response.status})`);
         }
 
         const data = await response.json();
@@ -127,12 +121,9 @@ async function startAnalysis() {
 
         confidenceBar.style.width = `${data.confidence * 100}%`;
 
-        if (data.explanation) {
-            modelExplanation.innerText = data.explanation;
-        } else {
-            modelExplanation.innerText =
-                "The model analyzed facial structure and expression patterns to determine the most probable emotional classification.";
-        }
+        modelExplanation.innerText =
+            data.explanation ||
+            "The model analyzed facial structure and expression patterns to determine the most probable emotional classification.";
 
         if (data.confidence > 0.75) {
             confidenceExplanation.innerText =
@@ -163,8 +154,8 @@ async function startAnalysis() {
         }
 
     } catch (error) {
-        console.error(error);
-        alert("Analysis failed. Make sure your backend server is running.");
+        console.error("Analysis failed:", error);
+        alert("Analysis failed. Please try again.");
         showView(uploadView);
     }
 }

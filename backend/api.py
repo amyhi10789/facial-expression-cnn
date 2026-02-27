@@ -1,5 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import torch
 from PIL import Image
 from io import BytesIO
@@ -16,18 +16,11 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 CLASS_NAMES = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised']
-
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
 model = None
 
 @app.on_event("startup")
@@ -78,9 +71,7 @@ async def predict(file: UploadFile = File(...)):
     describing what visible facial features could have contributed 
     to this classification.
 
-    Only reference observable facial signals 
-    (e.g., mouth curvature, eyebrow tension, eye openness).
-    Do NOT speculate about identity, personality, or mental state.
+    Only reference observable facial signals.
     Keep it under 120 words.
     """
 
@@ -103,3 +94,5 @@ async def predict(file: UploadFile = File(...)):
         "probabilities": prob_dict,
         "explanation": explanation
     }
+
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
