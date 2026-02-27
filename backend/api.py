@@ -10,9 +10,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-print("KEY LOADED:", OPENAI_API_KEY)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 app = FastAPI()
@@ -29,10 +28,17 @@ CLASS_NAMES = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-model = EmotionCNN()
-load_checkpoint(model, "outputs/checkpoints/best_model.pth", device)
-model.to(device)
-model.eval()
+model = None
+
+@app.on_event("startup")
+async def startup_event():
+    global model
+    print("Loading model...")
+    model = EmotionCNN()
+    load_checkpoint(model, "outputs/checkpoints/best_model.pth", device)
+    model.to(device)
+    model.eval()
+    print("Model loaded.")
 
 transform = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),
@@ -43,7 +49,6 @@ transform = transforms.Compose([
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-
     image = Image.open(BytesIO(await file.read()))
     image = transform(image).unsqueeze(0).to(device)
 
@@ -88,10 +93,8 @@ async def predict(file: UploadFile = File(...)):
             ],
             temperature=0.7,
         )
-
         explanation = response.choices[0].message.content.strip()
-
-    except Exception as e:
+    except Exception:
         explanation = "The model analyzed facial landmark structure and expression patterns to determine the most probable emotional classification."
 
     return {
