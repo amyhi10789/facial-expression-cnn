@@ -5,3 +5,6 @@ pandas
 matplotlib
 scikit-learn
 tqdm
+fastapi
+uvicorn
+python-multipart

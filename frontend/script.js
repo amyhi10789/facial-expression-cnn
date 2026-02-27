@@ -5,6 +5,14 @@ import { collection, addDoc } from
 
 let currentFile = null;
 
+import { onAuthStateChanged } from
+    "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+let currentUser = null;
+
+onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+});
 const input = document.getElementById("imageInput");
 const uploadArea = document.getElementById("uploadArea");
 const uploadStatus = document.getElementById("uploadStatus");
@@ -137,15 +145,20 @@ async function startAnalysis() {
                 "The model confidence is relatively low. Facial signals appear ambiguous or mixed, meaning multiple interpretations were possible.";
         }
 
-        await addDoc(
-            collection(db, "users", auth.currentUser.uid, "history"),
-            {
-                emotion: data.emotion,
-                confidence: data.confidence,
-                explanation: data.explanation || "",
-                timestamp: new Date()
-            }
-        );
+        if (currentUser) {
+            await addDoc(
+                collection(db, "users", currentUser.uid, "history"),
+                {
+                    emotion: data.emotion,
+                    confidence: data.confidence,
+                    explanation: data.explanation || "",
+                    timestamp: new Date()
+                }
+            );
+        } else {
+            confidenceExplanation.innerHTML +=
+                "<br><br><em>Sign in to save this result to your analysis history.</em>";
+        }
 
     } catch (error) {
         console.error(error);
