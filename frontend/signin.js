@@ -5,18 +5,27 @@ import {
     signInWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
-    onAuthStateChanged
+    onAuthStateChanged,
+    signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const form = document.getElementById("authForm");
 const message = document.getElementById("authMessage");
 const googleBtn = document.getElementById("googleBtn");
 
-form.addEventListener("submit", async (e) => {
+const authSection = document.getElementById("authSection");
+const accountSection = document.getElementById("accountSection");
+
+const accountEmail = document.getElementById("accountEmail");
+const accountCreated = document.getElementById("accountCreated");
+const accountLastLogin = document.getElementById("accountLastLogin");
+const logoutBtn = document.getElementById("logoutBtn");
+
+form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
 
     try {
         await signInWithEmailAndPassword(auth, email, password);
@@ -32,7 +41,7 @@ form.addEventListener("submit", async (e) => {
     window.location.href = "app.html";
 });
 
-googleBtn.addEventListener("click", async () => {
+googleBtn?.addEventListener("click", async () => {
     const provider = new GoogleAuthProvider();
 
     try {
@@ -44,7 +53,36 @@ googleBtn.addEventListener("click", async () => {
 });
 
 onAuthStateChanged(auth, (user) => {
+
+    if (!authSection || !accountSection) return;
+
     if (user) {
-        console.log("Logged in as:", user.uid);
+
+        authSection.classList.add("hidden");
+        accountSection.classList.remove("hidden");
+
+        if (accountEmail) {
+            accountEmail.innerText = user.email;
+        }
+
+        if (accountCreated) {
+            accountCreated.innerText =
+                new Date(user.metadata.creationTime).toLocaleString();
+        }
+
+        if (accountLastLogin) {
+            accountLastLogin.innerText =
+                new Date(user.metadata.lastSignInTime).toLocaleString();
+        }
+
+    } else {
+        authSection.classList.remove("hidden");
+        accountSection.classList.add("hidden");
     }
+
+});
+
+logoutBtn?.addEventListener("click", async () => {
+    await signOut(auth);
+    location.reload();
 });

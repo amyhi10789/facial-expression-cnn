@@ -4,7 +4,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Percepta AI</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
@@ -25,35 +25,52 @@
     <main class="app-wrapper">
         <div class="app-card auth-card">
 
-            <h1 class="app-title">Sign In</h1>
-            <p class="app-subtitle">
-                Sign in to access your emotional insights.
-            </p>
+            <div id="authSection">
+                <h1 class="app-title">Sign In</h1>
+                <p class="app-subtitle">
+                    Sign in to access your emotional insights.
+                </p>
 
-            <form id="authForm" class="auth-form">
-                <div class="input-group">
-                    <label>Email</label>
-                    <input type="email" id="email" required>
-                </div>
+                <form id="authForm" class="auth-form">
+                    <div class="input-group">
+                        <label>Email</label>
+                        <input type="email" id="email" required>
+                    </div>
 
-                <div class="input-group">
-                    <label>Password</label>
-                    <input type="password" id="password" required>
-                </div>
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="password" required>
+                    </div>
 
-                <button type="submit" class="primary-btn">
-                    Sign In / Create Account
+                    <button type="submit" class="primary-btn">
+                        Sign In / Create Account
+                    </button>
+                </form>
+
+                <div class="auth-message" id="authMessage"></div>
+
+                <div style="margin:20px 0; opacity:0.6;">or</div>
+
+                <button id="googleBtn" class="google-btn">
+                    <img src="images/google.png" alt="Google logo">
+                    <span>Sign in with Google</span>
                 </button>
-            </form>
+            </div>
 
-            <div class="auth-message" id="authMessage"></div>
+            <div id="accountSection" class="hidden">
+                <h1 class="app-title">Account Overview</h1>
+                <p>You are signed in to Percepta AI.</p>
 
-            <div style="margin:20px 0; opacity:0.6;">or</div>
+                <div class="account-info">
+                    <div><strong>Email:</strong> <span id="accountEmail"></span></div>
+                    <div><strong>Account Created:</strong> <span id="accountCreated"></span></div>
+                    <div><strong>Last Login:</strong> <span id="accountLastLogin"></span></div>
+                </div>
 
-            <button id="googleBtn" class="primary-btn"
-                style="background:transparent; border:2px solid #6d4c4c; color:#6d4c4c;">
-                Sign in with Google
-            </button>
+                <button id="logoutBtn" class="primary-btn" style="margin-top:20px;">
+                    Sign Out
+                </button>
+            </div>
 
         </div>
     </main>

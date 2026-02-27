@@ -16,8 +16,8 @@ def main():
         model,
         train_loader,
         val_loader,
-        epochs=20,
-        lr=1e-3,
+        epochs=10,
+        lr=1e-5,
         device=device
     )
 

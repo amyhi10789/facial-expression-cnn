@@ -1,18 +1,9 @@
 import { auth, db } from "./firebase.js";
 
-import { onAuthStateChanged } from
-    "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
 import { collection, addDoc } from
     "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 let currentFile = null;
-
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        window.location.href = "signin.html";
-    }
-});
 
 const input = document.getElementById("imageInput");
 const uploadArea = document.getElementById("uploadArea");
