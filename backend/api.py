@@ -23,15 +23,16 @@ CLASS_NAMES = ['angry', 'disgust', 'fear', 'happy', 'neutral', 'sad', 'surprised
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = None
 
-@app.on_event("startup")
-async def startup_event():
+model = None
+
+def get_model():
     global model
-    print("Loading model...")
-    model = EmotionCNN()
-    load_checkpoint(model, "outputs/checkpoints/best_model.pth", device)
-    model.to(device)
-    model.eval()
-    print("Model loaded.")
+    if model is None:
+        model = EmotionCNN()
+        load_checkpoint(model, "outputs/checkpoints/best_model.pth", device)
+        model.to(device)
+        model.eval()
+    return model
 
 transform = transforms.Compose([
     transforms.Grayscale(num_output_channels=1),
@@ -42,6 +43,8 @@ transform = transforms.Compose([
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    model = get_model()
+    
     image = Image.open(BytesIO(await file.read()))
     image = transform(image).unsqueeze(0).to(device)
 
