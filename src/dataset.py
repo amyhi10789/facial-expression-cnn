@@ -1,15 +1,14 @@
 import torch
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
+import random
 
 
-def get_dataloaders(data_dir, batch_size=64):
+def get_dataloaders(data_dir, batch_size=64, subset_ratio=1.0):
 
     train_transform = transforms.Compose([
         transforms.Grayscale(num_output_channels=1),
         transforms.Resize((48, 48)),
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(10),
         transforms.ToTensor(),
         transforms.Normalize((0.5,), (0.5,))
     ])
@@ -31,7 +30,27 @@ def get_dataloaders(data_dir, batch_size=64):
         transform=test_transform
     )
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    if subset_ratio < 1.0:
+        subset_size = int(subset_ratio * len(train_dataset))
+        indices = random.sample(range(len(train_dataset)), subset_size)
+        train_dataset = Subset(train_dataset, indices)
+
+        print(f"🔥 FAST MODE: using {subset_size} samples")
+
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=batch_size,
+        shuffle=True,
+        num_workers=4,
+        pin_memory=True
+    )
+
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        num_workers=4,
+        pin_memory=True
+    )
 
     return train_loader, test_loader
